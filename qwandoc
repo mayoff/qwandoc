@@ -1,0 +1,23 @@
+#!/usr/bin/env python
+
+import re
+import sys
+import string
+
+def main(args = sys.argv[1:]):
+    chunks = []
+    for arg in args:
+        if os.path.splitext(arg)[1][1:] in ('md', 'mdown', 'markdown'):
+            chunks += open(arg, 'rb').read()
+        else:
+            chunks += extractChunks(open(arg, 'rb').read())
+
+def extractChunks(document):
+    for text in re.findall(r'/\*\*.*?\*/', document, re.DOTALL):
+        text = text[3:-2].lstrip('\n').rstrip()
+        text = string.expandtabs(text)
+        
+
+if __name__ == '__main__':
+    main()
+
