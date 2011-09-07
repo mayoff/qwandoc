@@ -3,39 +3,140 @@
 import re
 import sys
 import os
+import markdown
+import html5lib
+import lxml.etree
+import jinja2 as jin
 
 def main(args = sys.argv[1:]):
+    markdown = markdownForFiles(args)
+    html = u'<article>' + htmlForMarkdown(markdown) + u'</article>'
+    tree = treeForHtml(html).iter('article').next()
+    outline = outlineForTree(tree)
+    sys.stdout.write(render(content = lxml.etree.tostring(tree), outline = outline).encode('utf-8'))
+
+def markdownForFiles(filenames):
+
+    def extractChunks(contents):
+        for text in re.findall(r'/\*\*.*?\*/', contents, re.DOTALL):
+            text = text[3:-2].lstrip('\n').rstrip().expandtabs() + '\n'
+            lines = text.split('\n')
+            plen = len(longestCommonWhitespacePrefix(lines))
+            yield '\n'.join([line[plen:] for line in lines])
+
+    def longestCommonWhitespacePrefix(lines):
+        # lines was already stripped of leading blank lines and has at least one line.
+        # If the first line is blank, it's the only line.
+        match = re.match(r'^\s+', lines[0])
+        if match is None:
+            return ''
+        prefix = match.group()
+        for line in lines:
+            if len(line) == 0:
+                continue
+            while not line.startswith(prefix):
+                prefix = prefix[:-1]
+            if not len(prefix):
+                break
+        return prefix
+
     chunks = []
-    for arg in args:
-        if os.path.splitext(arg)[1][1:] in ('md', 'mdown', 'markdown'):
-            chunks += open(arg, 'rb').read()
+    for filename in filenames:
+        contents = open(filename, 'rb').read().decode('utf-8')
+        if os.path.splitext(filename)[1][1:] in ('md', 'mdown', 'markdown'):
+            chunks.append(contents)
         else:
-            chunks += extractChunks(open(arg, 'rb').read())
+            chunks += extractChunks(contents)
+    return '\n\n'.join(chunks)
 
-    print '\n----------------------------------------------------------------\n'.join(chunks)
+mdProcessor = markdown.Markdown()
 
-def extractChunks(document):
-    for text in re.findall(r'/\*\*.*?\*/', document, re.DOTALL):
-        text = text[3:-2].lstrip('\n').rstrip().expandtabs() + '\n'
-        lines = text.split('\n')
-        plen = len(longestCommonWhitespacePrefix(lines))
-        yield '\n'.join([line[plen:] for line in lines])
+def htmlForMarkdown(markdown):
+    return mdProcessor.convert(markdown)
 
-def longestCommonWhitespacePrefix(lines):
-    # lines was already stripped of leading blank lines and has at least one line.
-    # If the first line is blank, it's the only line.
-    match = re.match(r'^\s+', lines[0])
-    if match is None:
-        return ''
-    prefix = match.group()
-    for line in lines:
-        if len(line) == 0:
-            continue
-        while not line.startswith(prefix):
-            prefix = prefix[:-1]
-        if not len(prefix):
-            break
-    return prefix
+def treeForHtml(html):
+    return html5lib.parse(html, 'lxml', namespaceHTMLElements = False).getroot()
+
+def outlineForTree(tree):
+    """Return an outline of the tree.  An outline is a list with one item per H1 element.  Each item is a dictionary with three entries: text (the text content of the H1 element), id (the id attribute of the H1, which will be created by outlineForTree if necessary), and children.  Children is itself is an outline (list) of H2 elements, which have children outlines of H3 elements and so on."""
+
+    stack = [[]]
+    ids = idsOfTree(tree)
+
+    def makeOutline(id, text):
+        return {
+            'id': id,
+            'text': text,
+            'children': []
+        }
+
+    def adjustStackForNewHeader(level):
+        while len(stack) > level:
+            stack.pop()
+        while len(stack) < level:
+            stack.append(makeOutline(None, None))
+
+    for node in headersOfTree(tree):
+        ensureNodeHasId(node, ids)
+        level = int(node.tag[1:])
+        adjustStackForNewHeader(level)
+        outline = makeOutline(node.attrib['id'], ''.join(node.itertext()))
+        stack[-1].append(outline)
+        stack.append(outline['children'])
+
+    return stack[0]
+
+def idsOfTree(tree):
+    ids = set()
+    for node in tree.iter():
+        if 'id' in node.attrib:
+            ids.add(node.attrib['id'])
+    return ids
+
+def ensureNodeHasId(node, ids):
+    if 'id' in node.attrib:
+        return
+    id = ''.join(node.itertext())
+    id = re.sub('[ \t\f\r\n]+', '-', id)
+    if id in ids:
+        i = 1
+        while True:
+            newId = id + u'-' + unicode(i)
+            if newId not in ids:
+                break
+            i += 1
+        id = newId
+    node.attrib['id'] = id
+    ids.add(id)
+
+def headersOfTree(tree):
+    for node in tree.iter():
+        if len(node.tag) == 2 and node.tag[0] == 'h' and node.tag[1] in '123456':
+            yield node
+
+def render(content, outline):
+    jTemplate = jin.Template(defaultTemplate, trim_blocks = True)
+    return jTemplate.render({
+        'content': content,
+        'outline': outline
+    })
+
+defaultTemplate = ur'''<!doctype html>
+<meta charset=utf-8>
+<ol id='qwandoc-outline'>
+{% for h1 in outline %}
+    <li class='qwandoc-outline-folder'><a href='#{{h1.id}}'>{{h1.text}}</a>
+    {% if h1.children %}
+    <ol class='qwandoc-outline-2'>
+    {% for h2 in h1.children %}
+        <li><a href='#{{h2.id}}'>{{h2.text}}</a>
+    {% endfor %}
+    </ol>
+    {% endif %}
+{% endfor %}
+<ol>
+{{content}}
+'''
 
 if __name__ == '__main__':
     main()
