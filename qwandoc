@@ -141,29 +141,42 @@ defaultTemplate = ur'''<!doctype html><html><head>
 <link rel='stylesheet' href='file:///Users/mayoff/P/qwandoc/dev/style.css'>
 </head><body>
 <div id='title'>{{ title or '' }}</div>
+<div id='content'>
 <nav>
 <ol id='qwandoc-outline'>
 {% for h1 in outline %}
-    <li class='qwandoc-outline-folder'><a href='#{{h1.id}}'>{{h1.text}}</a>
-    {% if h1.children %}
-    <ol class='qwandoc-outline-2'>
-    {% for h2 in h1.children %}
-        <li><a href='#{{h2.id}}'>{{h2.text}}</a>
-        {% if h2.children %}
-        <ol class='qwandoc-outline-3'>
-        {% for h3 in h2.children %}
-            <li><a href='#{{h3.id}}'>{{h3.text}}</a>
+    <li class='qwandoc-outline-folder'>
+        {% if h1.children %}
+        <button type='button' class='discloser'>&#x25b6;</button>
+        {% else %}
+        <span class='nodiscloser'> </span>
+        {% endif %}
+        <a href='#{{h1.id}}'>{{h1.text}}</a>
+        {% if h1.children %}
+        <ol class='qwandoc-outline-2'>
+        {% for h2 in h1.children %}
+            <li>
+                {% if h2.children %}
+                    <button type='button' class='discloser'>&#x25b6;</button>
+                {% else %}
+                    <span class='nodiscloser'> </span>
+                {% endif %}
+                <a href='#{{h2.id}}'>{{h2.text}}</a>
+                {% if h2.children %}
+                <ol class='qwandoc-outline-3'>
+                {% for h3 in h2.children %}
+                    <li><a href='#{{h3.id}}'>{{h3.text}}</a>
+                {% endfor %}
+                </ol>
+                {% endif %}
         {% endfor %}
         </ol>
         {% endif %}
-    {% endfor %}
-    </ol>
-    {% endif %}
 {% endfor %}
 <ol>
 </nav>
 {{content}}
-</body></head>'''
+</div></body></head>'''
 
 if __name__ == '__main__':
     main()
