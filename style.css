@@ -7,14 +7,51 @@ BODY {
     background-color: #f7f5ea;
     font: 14px/20px 'Lucida Grande', 'Helvetica Neue', sans-serif;
     color: #101020;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
 }
 
 A {
     text-decoration: none;
 }
 
+#title {
+	position: absolute;
+	top: 0;
+	height: 30px;
+	left: 0;
+	right: 0;
+	border-bottom: 1px solid #666;
+	background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#f7eed4), to(#c4ae88));
+	text-align: center;
+	font-size: 20px;
+	line-height: 29px;
+}
+
+#content {
+	position: absolute;
+	top: 30px;
+	bottom: 0;
+	left: 0;
+	right: 0;
+}
+
+NAV {
+	position: absolute;
+	top: 0;
+	height: 100%;
+	left: 0;
+	width: 2in;
+	overflow-x: hidden;
+	overflow-y: auto;
+	border-right: 1px solid #666;
+	background-color: #ede8d5;
+}
+
 NAV OL {
 	list-style-type: none;
+	padding-left: 20px;
 }
 
 NAV LI {
@@ -37,21 +74,11 @@ NAV .qwandoc-outline-2 A {
     color: #444;
 }
 
-NAV {
-	position: fixed;
-	top: 0;
-	height: 100%;
-	left: 0;
-	width: 2in;
-	overflow-x: hidden;
-	overflow-y: auto;
-	border-right: 1px solid #666;
-	background-color: #ede8d5;
-}
-
 ARTICLE {
 	position: absolute;
+	overflow: auto;
 	top: 0;
+	bottom: 0;
 	left: 2in;
 	right: 0;
 	padding: 0 .125in;
