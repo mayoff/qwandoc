@@ -123,6 +123,7 @@ def render(content, outline):
 
 defaultTemplate = ur'''<!doctype html>
 <meta charset=utf-8>
+<nav>
 <ol id='qwandoc-outline'>
 {% for h1 in outline %}
     <li class='qwandoc-outline-folder'><a href='#{{h1.id}}'>{{h1.text}}</a>
@@ -130,11 +131,19 @@ defaultTemplate = ur'''<!doctype html>
     <ol class='qwandoc-outline-2'>
     {% for h2 in h1.children %}
         <li><a href='#{{h2.id}}'>{{h2.text}}</a>
+        {% if h2.children %}
+        <ol class='qwandoc-outline-3'>
+        {% for h3 in h2.children %}
+            <li><a href='#{{h3.id}}'>{{h3.text}}</a>
+        {% endfor %}
+        </ol>
+        {% endif %}
     {% endfor %}
     </ol>
     {% endif %}
 {% endfor %}
 <ol>
+</nav>
 {{content}}
 '''
 
