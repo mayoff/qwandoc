@@ -157,7 +157,7 @@ defaultTemplate = ur'''<!doctype html><html><head>
         {% for h2 in h1.children %}
             <li>
                 {% if h2.children %}
-                    <button type='button' class='discloser'>&#x25b6;</button>
+                    <button type='button' class='discloser'>&#x25b7;</button>
                 {% else %}
                     <span class='nodiscloser'> </span>
                 {% endif %}
