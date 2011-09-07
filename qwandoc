@@ -2,7 +2,7 @@
 
 import re
 import sys
-import string
+import os
 
 def main(args = sys.argv[1:]):
     chunks = []
@@ -12,11 +12,30 @@ def main(args = sys.argv[1:]):
         else:
             chunks += extractChunks(open(arg, 'rb').read())
 
+    print '\n----------------------------------------------------------------\n'.join(chunks)
+
 def extractChunks(document):
     for text in re.findall(r'/\*\*.*?\*/', document, re.DOTALL):
-        text = text[3:-2].lstrip('\n').rstrip()
-        text = string.expandtabs(text)
-        
+        text = text[3:-2].lstrip('\n').rstrip().expandtabs() + '\n'
+        lines = text.split('\n')
+        plen = len(longestCommonWhitespacePrefix(lines))
+        yield '\n'.join([line[plen:] for line in lines])
+
+def longestCommonWhitespacePrefix(lines):
+    # lines was already stripped of leading blank lines and has at least one line.
+    # If the first line is blank, it's the only line.
+    match = re.match(r'^\s+', lines[0])
+    if match is None:
+        return ''
+    prefix = match.group()
+    for line in lines:
+        if len(line) == 0:
+            continue
+        while not line.startswith(prefix):
+            prefix = prefix[:-1]
+        if not len(prefix):
+            break
+    return prefix
 
 if __name__ == '__main__':
     main()
