@@ -1,0 +1,62 @@
+
+* {
+	box-sizing: border-box;
+}
+
+BODY {
+    background-color: #f7f5ea;
+    font: 14px/20px 'Lucida Grande', 'Helvetica Neue', sans-serif;
+    color: #101020;
+}
+
+A {
+    text-decoration: none;
+}
+
+NAV OL {
+	list-style-type: none;
+}
+
+NAV LI {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+NAV A {
+    font-weight: bold;
+    color: #000;
+}
+
+NAV #qwandoc-outline {
+    padding-left: 0px;
+    font-size: 12px;
+}
+
+NAV .qwandoc-outline-2 A {
+    color: #444;
+}
+
+NAV {
+	position: fixed;
+	top: 0;
+	height: 100%;
+	left: 0;
+	width: 2in;
+	overflow-x: hidden;
+	overflow-y: auto;
+	border-right: 1px solid #666;
+	background-color: #ede8d5;
+}
+
+ARTICLE {
+	position: absolute;
+	top: 0;
+	left: 2in;
+	right: 0;
+	padding: 0 .125in;
+}
+
+PRE {
+	overflow-x: auto;
+}

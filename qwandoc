@@ -7,13 +7,28 @@ import markdown
 import html5lib
 import lxml.etree
 import jinja2 as jin
+import argparse
 
 def main(args = sys.argv[1:]):
-    markdown = markdownForFiles(args)
+    job = jobForArgs(args)
+    markdown = markdownForFiles(job.filenames)
     html = u'<article>' + htmlForMarkdown(markdown) + u'</article>'
     tree = treeForHtml(html).iter('article').next()
     outline = outlineForTree(tree)
-    sys.stdout.write(render(content = lxml.etree.tostring(tree), outline = outline).encode('utf-8'))
+    # Note: outlineForTree adds id attributes to tree, so I convert it back to HTML.
+    html = lxml.etree.tostring(tree)
+    jinjaContext = {
+        'content': html,
+        'outline': outline,
+        'title': job.title
+    }
+    sys.stdout.write(render(jinjaContext).encode('utf-8'))
+
+def jobForArgs(args):
+    parser = argparse.ArgumentParser(description = 'Create documentation from source files.')
+    parser.add_argument('-t', '--title', default = None, help = 'The title of the document.')
+    parser.add_argument('filenames', nargs = '+', metavar = 'FILENAME')
+    return parser.parse_args(args)
 
 def markdownForFiles(filenames):
 
@@ -114,15 +129,18 @@ def headersOfTree(tree):
         if len(node.tag) == 2 and node.tag[0] == 'h' and node.tag[1] in '123456':
             yield node
 
-def render(content, outline):
+def render(context):
     jTemplate = jin.Template(defaultTemplate, trim_blocks = True)
-    return jTemplate.render({
-        'content': content,
-        'outline': outline
-    })
+    return jTemplate.render(context)
 
-defaultTemplate = ur'''<!doctype html>
+defaultTemplate = ur'''<!doctype html><html><head>
 <meta charset=utf-8>
+{% if title %}
+<title>{{ title }}</title>
+{% endif %}
+<link rel='stylesheet' href='file:///Users/mayoff/P/qwandoc/dev/style.css'>
+</head><body>
+<div id='title'>{{ title or '' }}</div>
 <nav>
 <ol id='qwandoc-outline'>
 {% for h1 in outline %}
@@ -145,7 +163,7 @@ defaultTemplate = ur'''<!doctype html>
 <ol>
 </nav>
 {{content}}
-'''
+</body></head>'''
 
 if __name__ == '__main__':
     main()
