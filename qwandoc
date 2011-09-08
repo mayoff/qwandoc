@@ -146,34 +146,45 @@ defaultTemplate = ur'''<!doctype html><html><head>
 <ol id='qwandoc-outline'>
 {% for h1 in outline %}
     <li class='qwandoc-outline-folder'>
-        {% if outline[1] and h1.children %}
-        <button type='button' class='discloser discloser-closed'><span class='discloser-label'>&#x25b6;</span></button>
-        <a href='#{{h1.id}}'>{{h1.text}}</a>
-        <ol class='qwandoc-outline-2 discloser-target discloser-closed'>
-        {% for h2 in h1.children %}
-            <li>
-            {% if h1.children[1] and h2.children %}
-                <button type='button' class='discloser discloser-closed'><span class='discloser-label'>&#x25b7;</span></button>
-                <a href='#{{h2.id}}'>{{h2.text}}</a>
-            {% else %}
-                <span class='nodiscloser'></span>
-                <a href='#{{h2.id}}'>{{h2.text}}</a>
-            {% endif %}
-            {% if h2.children %}
-            <ol class='qwandoc-outline-3 discloser-target discloser-closed'>
-            {% for h3 in h2.children %}
-                <li>
-                <span class='nodiscloser'></span>
-                <a href='#{{h3.id}}'>{{h3.text}}</a>
-            {% endfor %}
+        <div class='qwandoc-navitem'>
+            <a href='#{{h1.id}}'>
+                {% if outline[1] and h1.children %}
+                    <button type='button' class='discloser discloser-closed'><span class='discloser-label'>&#x25b6;</span></button>
+                {% else %}
+                    <span class='nodiscloser'>&nbsp;</span>
+                {% endif %}
+                {{h1.text}}
+            </a>
+        </div>
+        {% if h1.children %}
+            <ol class='qwandoc-outline-2 discloser-target'>
+                {% for h2 in h1.children %}
+                    <li>
+                        <div class='qwandoc-navitem'>
+                            {% if h1.children[1] and h2.children %}
+                                <button type='button' class='discloser discloser-closed'><span class='discloser-label'>&#x25b7;</span></button>
+                            {% else %}
+                                <span class='nodiscloser'>&nbsp;</span>
+                            {% endif %}
+                            <a href='#{{h2.id}}'>{{h2.text}}</a>
+                        </div>
+                        {% if h2.children %}
+                            <ol class='qwandoc-outline-3 discloser-target'>
+                                {% for h3 in h2.children %}
+                                    <li>
+                                        <div class='qwandoc-navitem'>
+                                            <span class='nodiscloser'>&nbsp;</span>
+                                            <a href='#{{h3.id}}'>{{h3.text}}</a>
+                                        </div>
+                                    </li>
+                                {% endfor %}
+                            </ol>
+                        {% endif %}
+                    </li>
+                {% endfor %}
             </ol>
-            {% endif %}
-        {% endfor %}
-        </ol>
-        {% else %}
-        <span class='nodiscloser'></span>
-        <a href='#{{h1.id}}'>{{h1.text}}</a>
         {% endif %}
+    </li>
 {% endfor %}
 <ol>
 </nav>
@@ -184,20 +195,29 @@ window.onload = function () {
 
     var disclosers = document.querySelectorAll('BUTTON.discloser');
 
-    [].forEach.call(disclosers, function (discloser) {
-        for (var disclosee = discloser; ; disclosee = disclosee.nextSibling) {
-            if (!disclosee)
-                return;
-            if (!('className' in disclosee))
-                continue;
-            if (disclosee.className.search(/\bdiscloser-target\b/) > -1)
-                break;
-            disclosee = disclosee.nextSibling;
-        }
+    function nextNode(node) {
+        if (!node)
+            return node;
+        return !node ? null : node.nextSibling || nextNode(node.parentNode)
+    }
 
-        var isOpen = disclosee.className.search(/\bdiscloser-open\b/) > -1;
-        setDiscloserClasses(disclosee, true);
-        var naturalHeight = disclosee.offsetHeight + 'px';
+    function findDisclosee(node) {
+        for (node = nextNode(node); ; node = nextNode(node)) {
+            if (!node)
+                return node;
+            if (!node.className)
+                continue;
+            if (node.className.search(/\bdiscloser-target\b/) > -1)
+                return node;
+        }
+    }
+
+    [].forEach.call(disclosers, function (discloser) {
+        var disclosee = findDisclosee(discloser);
+        if (!disclosee)
+            return;
+
+        var isOpen = discloser.className.search(/\bdiscloser-open\b/) > -1;
         setDisclosure(isOpen);
 
         discloser.addEventListener('click', function () {
@@ -206,7 +226,6 @@ window.onload = function () {
 
         function setDisclosure(newIsOpen) {
             isOpen = newIsOpen;
-            disclosee.style.height = isOpen ? naturalHeight : '0';
             setDiscloserClasses(discloser, isOpen);
             setDiscloserClasses(disclosee, isOpen);
         }
@@ -216,7 +235,12 @@ window.onload = function () {
             classes.push(isOpen ? 'discloser-open' : 'discloser-closed');
             node.className = classes.join(' ');
         }
+
     });
+
+    // Add padding-bottom to the article so that its last link target will appear near the top of the screen when targeted.
+    var article = document.querySelector('article');
+    article.style.setProperty('padding-bottom', .9 * article.parentNode.offsetHeight + 'px');
 
 };
 (function () {

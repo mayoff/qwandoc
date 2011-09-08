@@ -19,19 +19,19 @@ A {
 #title {
     position: absolute;
     top: 0;
-    height: 30px;
+    height: 1.5em;
     left: 0;
     right: 0;
     border-bottom: 1px solid #666;
-    background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#f7eed4), color-stop(96.7%, #c4ae88), to(#faf4e2));
+    background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#f7eed4), color-stop(96.7%, #c4ae88), to(#ebe2ca));
     text-align: center;
-    font-size: 20px;
-    line-height: 29px;
+    font-size: 143%;
+    line-height: 1.5em;
 }
 
 #content {
     position: absolute;
-    top: 30px;
+    top: 2.15em;
     bottom: 0;
     left: 0;
     right: 0;
@@ -42,11 +42,17 @@ NAV {
     top: 0;
     height: 100%;
     left: 0;
-    width: 2in;
+    width: 15em;
     overflow-x: hidden;
     overflow-y: auto;
     border-right: 1px solid #666;
     background-color: #ede8d5;
+}
+
+NAV * {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 
 NAV OL {
@@ -55,9 +61,7 @@ NAV OL {
 }
 
 NAV LI {
-    text-overflow: ellipsis;
-    overflow: hidden;
-    white-space: nowrap;
+    margin-bottom: 2px;
 }
 
 NAV A {
@@ -66,13 +70,21 @@ NAV A {
 }
 
 NAV #qwandoc-outline {
-    margin: 10px 0;
+    margin: 1em 0;
     padding: 0;
-    font-size: 12px;
+    font-size: 86%;
 }
 
 NAV .qwandoc-outline-2 A {
     color: #444;
+}
+
+.qwandoc-navitem:hover {
+    background-color: rgba(255,255,255,.4);
+}
+
+.discloser {
+    cursor: pointer;
 }
 
 .discloser, .nodiscloser {
@@ -81,15 +93,19 @@ NAV .qwandoc-outline-2 A {
     -moz-appearance: none;
     margin: 0;
     padding: 0;
-    height: 20px;
-    width: 25px;
+    height: 1.5em;
+    width: 25px;  /* for some reason, using ems misaligns headings */
     text-align: right;
     border: none;
     background-color: inherit;
 }
 
-.discloser-target {
-    -webkit-transition: height .12s ease-in;
+.discloser-target.discloser-open {
+    height: auto;
+}
+
+.discloser-target.discloser-closed {
+    height: 0;
 }
 
 .qwandoc-outline-2 .discloser, .qwandoc-outline-2 .nodiscloser {
@@ -105,11 +121,35 @@ ARTICLE {
     overflow: auto;
     top: 0;
     bottom: 0;
-    left: 2in;
+    left: 15em;
     right: 0;
-    padding: 0 .125in;
+    padding: 0 2em;
+}
+
+H1 {
+    font-weight: normal;
+    margin-top: 3em;
+    margin-left: -1em;
+    margin-right: -1em;
+    padding: .4em 1em;
+    font-size: 200%;
+    background-color: #dbd9cf;
+}
+
+H1:first-child {
+    margin-top: 0;
+}
+
+H2 {
+    font-weight: normal;
+}
+
+H3 {
+    font-weight: bold;
+    font-size: 100%;
 }
 
 PRE {
     overflow-x: auto;
 }
+
