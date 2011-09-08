@@ -51,7 +51,7 @@ NAV {
 
 NAV OL {
     list-style-type: none;
-    padding-left: 20px;
+    padding: 0;
 }
 
 NAV LI {
@@ -66,12 +66,38 @@ NAV A {
 }
 
 NAV #qwandoc-outline {
-    padding-left: 0px;
+    margin: 10px 0;
+    padding: 0;
     font-size: 12px;
 }
 
 NAV .qwandoc-outline-2 A {
     color: #444;
+}
+
+.discloser, .nodiscloser {
+    display: inline-block;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    margin: 0;
+    padding: 0;
+    height: 20px;
+    width: 25px;
+    text-align: right;
+    border: none;
+    background-color: inherit;
+}
+
+.discloser-target {
+    -webkit-transition: height .12s ease-in;
+}
+
+.qwandoc-outline-2 .discloser, .qwandoc-outline-2 .nodiscloser {
+    width: 37px;
+}
+
+.qwandoc-outline-3 .discloser, .qwandoc-outline-3 .nodiscloser {
+    width: 49px;
 }
 
 ARTICLE {
