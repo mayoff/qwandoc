@@ -156,7 +156,7 @@ A {
     text-decoration: none;
 }
 
-#title {
+#qwandoc-title {
     position: absolute;
     top: 0;
     height: 1.5em;
@@ -169,7 +169,7 @@ A {
     line-height: 1.5em;
 }
 
-#content {
+#qwandoc-content {
     position: absolute;
     top: 2.15em;
     bottom: 0;
@@ -294,8 +294,8 @@ PRE {
 }
 </style>
 </head><body>
-<div id='title'>{{ title or '' }}</div>
-<div id='content'>
+<div id='qwandoc-title'>{{ title or '' }}</div>
+<div id='qwandoc-content'>
 <nav>
 <ol id='qwandoc-outline'>
 {% for h1 in outline %}
